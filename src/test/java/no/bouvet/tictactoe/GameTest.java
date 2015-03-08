@@ -27,6 +27,12 @@ public class GameTest {
     }
 
     @Test
+    public void testFindWinningMoveInLargerGame() {
+        Game game = new Game("XO--XXX-OOXX----");
+        assertEquals(7, game.move('X'));
+    }
+
+    @Test
     public void testWinConditions() {
         Game game = new Game("---XXX---");
         assertEquals('X', game.winner());
