@@ -1,0 +1,307 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang=en lang=en>
+<HEAD>
+    <meta http-equiv=content-type content="text/html; charset=utf-8"/>
+    <link rel=stylesheet href="http://www.cs.usfca.edu/~parrt/lecture-wiki.css" type="text/css"/>
+    <title>Code Refactoring</title>
+</HEAD>
+<BODY>
+<H1>Code Refactoring</H1>
+
+<p>Adapted by Ove Gram Nipen from Terence Parr's <a
+        href="http://www.cs.usfca.edu/~parrt/course/601/lectures/refactoring/refactoring.html">lecture notes</a></p>
+
+
+<P>Until you've had to live with the same piece of code for a while, you
+    will not experience the need for refactoring. This lecture tries to
+    summarize what refactoring is, when you need to do it, what patterns
+    and tools are available.
+
+<P>These lecture notes paraphrase or quote most content from
+    <A HREF="http://www.amazon.com/exec/obidos/ASIN/0201485672/002-9330989-7896037"><B>
+        "Martin Fowler's Refactoring Book"</B></A>. I use keyword "TJP" to indicate
+    my own thoughts. There are large sections of just TJP stuff.
+
+<H2>Refactoring?</H2>
+
+<H3>What?</H3>
+
+
+<P>Fowler says that refactoring is the
+<BLOCKQUOTE>
+    "<i>... process of changing a software system in such a way that it does not alter the external behavior of the code
+    yet improves its internal structure.</i>"
+</BLOCKQUOTE>
+
+
+<P>Just cleaning up code.
+
+<P>Contrary to idealized development strategy:
+<OL>
+    <LI>analysis and design
+    </LI>
+    <LI>code
+    </LI>
+    <LI>test
+    </LI>
+
+</OL>
+
+<P>At first, code is pretty good but as requirements change or new features are added, the code structure tends to
+    atrophy. Refactoring is the process of fixing a bad or chaotic design.
+
+<P>Amounts to moving methods around, creating new methods, adding or deleting classes, ...
+
+<P>TJP: Sometimes it means completely redoing the entire code base (i.e., throwing stuff away). Avoid the <em>second
+    system effect</em>!
+
+<H3>Why?</H3>
+
+
+<P>Improve code structure and design
+<UL>
+    <LI>more maintainable
+    </LI>
+    <LI>easier to understand
+    </LI>
+    <LI>easier to modify
+    </LI>
+    <LI>easier to add new features
+    </LI>
+
+</UL>
+
+<P>Cumulative effect can radically improve design rather than normal slide into decay.
+
+<P>Flip-flop code development and refactoring. Only refactor when refactoring--do not add features during refactoring.
+
+<P>TJP: kind of like an immune system that constantly grooms the body looking for offensive and intrusive entities.
+
+<P>Bad code usually takes more code to do the same thing often because of duplication:
+
+<P><img src="code.duplication.gif">
+
+<P>TJP: from Fred Brook's "mythical man-month" remember that conceptual
+    integrity is one of his big points. Addition of new features can
+    break current system conceptual integrity. Must refactor your concept
+    sometimes as well as your code to make it fit properly. For example,
+    I integrated page snoopers with search so that I could look for
+    keywords regardless of whether the source was local or on some other
+    page or other some other site's search engine.
+
+<P>Improving design then often includes removing duplicate code. Don't
+    want duplicates because of bloat and also you only want one place to
+    change functionality not multiple.
+
+<P>Fowler says he will refactor existing code just to understand it
+    better and sometimes it helps to find bugs.
+
+<P>In summary, refactoring helps you develop better code, faster!
+
+<P>Kent Beck:
+<BLOCKQUOTE>
+    "<i>Programs have two kinds of value: what they can do for you today and what they can do for you tomorrow.</i>"
+</BLOCKQUOTE>
+
+
+<P>Mostly we are focused on today, but you cannot code today so that you
+    cannot code tomorrow. Actively making the future smoother is a great
+    idea. When you find tomorrow that today you made a mistake, you use
+    refactoring to fix the decision.
+
+<P>Fowler says database refactoring is super hard. See TJP's jGuru example below for entity specifications. :)
+
+<P><B>When not to refactor?</B>
+<UL>
+    <LI>Sometimes you should throw things out and start again.
+    </LI>
+    <LI>Sometimes you are too close to a deadline.
+    </LI>
+
+</UL>
+
+<H3>When?</H3>
+
+
+<P>When you can't stand the code anymore or it becomes impossible to add new features or fix bugs.
+
+<P>When your boss isn't looking. ;) There is a lot of pressure not to do work that adds no functionality--shortsighted.
+
+<P>Rule of 3 from Don Roberts:
+<BLOCKQUOTE>
+    "<i>The first time you do something, you just do it. The second time you do something similar, you wince at the
+    duplication, but you do the duplicate thing anyway. The third time you do something similar, you refactor.</i>"
+</BLOCKQUOTE>
+
+
+<P>Refactor when
+<OL>
+    <LI>you add new features and the code is brittle or hard to understand. Refactoring makes this feature and future
+        features easier to build.
+    </LI>
+    <LI>you fix bugs.
+    </LI>
+    <LI>during code review.
+    </LI>
+
+</OL>
+
+<P>
+
+<H2>What's that smell?</H2>
+
+
+<P>Refactor when your code smells. It smells in the following situations.
+
+<P> [From Fowler's book, but summarized at JHU, <A HREF="http://www.cs.jhu.edu/~scott/oos/lectures/refactoring.html"><B>http://www.cs.jhu.edu/~scott/oos/lectures/refactoring.html</B></A>
+    ]
+<UL>
+    <LI><em>Duplicated Code</em>
+        extract out the common bits into theirown method (<B>extract
+            method</B>) if code is in same class
+        if two classes duplicate code, consider <B>extract class</B> to
+        create a new class to hold the shared functionality.
+    </LI>
+    <LI><em>Long Methods</em>
+        <B>extract method</B>!
+    </LI>
+    <LI><em>Large Class</em> Class trying to do too much often shows up as too many instance variables.
+    </LI>
+    <LI><em>Long Parameter List</em>
+        <B>replace parameter with method</B> (receiver explicitly asks sender
+        for data via sender getter method)
+        Example: day month, year, hour minute second ==&gt; date
+    </LI>
+    <LI><em>Divergent Change</em>
+        If you have a fixed class that does distinctly different things
+        consider separating out the varying code into
+        varying classes <B>(extract class)</B> that either subclassor
+        are contained by the non-varying class.
+    </LI>
+    <LI><em>Shotgun Surgery</em>
+        The smell: a change in one class repeatedly requires little changes
+        in a bunch
+        of other classes.
+        try to <B>move method</B> and <B>move field</B> to get all the
+        bits into one class since they areobviously highly dependent.
+    </LI>
+    <LI><em>Feature Envy</em>
+        Method in one class uses lots of pieces from another class.
+        <B>move method</B> to move it to the other class.
+    </LI>
+    <LI><em>Data Clumps</em>
+        Data that's always hanging with each other (e.g. name street zip).
+        Extract out a class (<B>extract class</B>) for the data. Will
+        help trim argument lists too since name street zip now passed as
+        one address object.
+    </LI>
+    <LI><em>Switch (case) statements</em>
+        Use inheritance and polymorphism instead (exampleof this was in
+        Fowler Chapter 1; this is one of the more difficult refactorings)
+    </LI>
+    <LI><em>Lazy Class</em>
+        Class doesn't seem to be doing anything. Get rid of it!
+        <UL>
+            <LI><B>collapse heirarchy</B> if subclasses are nearly vacuous.
+                <UL>
+                    <LI><B>inline class</B> (stick the class' methods and fields
+                        in the class that was using it and get rid of original class).
+                    </LI>
+
+                </UL>
+            </LI>
+        </UL>
+    </LI>
+    <LI><em>Speculative generality</em>
+        Class designed to do something in the future but
+        never ends up doing it. Thinking too far ahead or you though you needed
+        this generality but you didn't.
+        like above, <B>collapse hierarchy</B>or <B>inline class</B>
+    </LI>
+    <LI><em>Message chains</em>
+        Say you want to send a message toobject D in class A but you have to go
+        through B to get C and C to get D.
+        use <B>hide delagate</B> to hide C and D in B, and add a method to
+        B that does what A wanted to do with D.
+    </LI>
+    <LI><em>Inappropriate Intimacy</em>
+        Directly getting in and munging with the internals
+        of another class.
+        To fix this, move methods, inline methods, to consolidate the
+        intimate bits.
+    </LI>
+    <LI><em>Incomplete Library Class</em>
+        If method missing from library, and we can't change the library, so
+        either:
+        o make this method in yourobject (<B>introduce foreign method</B>)
+        If there is a lot of stuff you want to change:
+        o make yourown extension/subclass (<B>introduce local extension</B>)
+    </LI>
+    <LI><em>Data Class</em>
+        We have already talked about this extensively: in data-centric design,
+        there are some data classes which are pretty much
+        structs: no interesting methods.
+        first don't letother directly get and set fields (make them
+        private) and don't have setter for things outsiders shouldn't change
+        look who uses the data and how they use it and move someof that
+        code to the data class via a combinationof <B>extract
+            method</B> and <B>move method</B> (see the Fowler chapter 1
+        example for several examplesof this)
+    </LI>
+    <LI><em>Comments</em>
+        Comments in the middleof methods are deodorant. You should really
+        refactor so each comment block
+        is its own method. Do <B>extract method</B>.
+    </LI>
+
+</UL>
+
+<P>
+
+<H2>Sample refactoring "patterns"</H2>
+
+
+<P>Here is a catalog of refactoring patterns:
+
+<P><A HREF="http://www.refactoring.com/catalog/"><B>http://www.refactoring.com/catalog/</B></A>
+
+
+<H2>Commonly used patterns</H2>
+
+
+<P>Fowler:
+<BLOCKQUOTE>
+    "<i>Any fool can write code that a computer can understand. Good
+    programmers write code that humans can understand.</i>"
+</BLOCKQUOTE>
+
+<UL>
+    <LI><A HREF="http://www.refactoring.com/catalog/extractMethod.html"><B>"Extract Method"</B></A>
+    </LI>
+    <LI><A HREF="http://www.refactoring.com/catalog/pullUpMethod.html"><B>"Pull up method"</B></A>
+    </LI>
+    <LI><A HREF="http://www.refactoring.com/catalog/addParameter.html"><B> "Add parameter"</B></A>
+    </LI>
+    <LI><A HREF="http://www.refactoring.com/catalog/renameMethod.html"><B>"Rename method"</B></A>
+    </LI>
+    <LI><A HREF="http://www.refactoring.com/catalog/replaceTempWithQuery.html"><B>"Replace temp with query"</B></A>
+    </LI>
+    <LI><A HREF="http://www.refactoring.com/catalog/extractVariable.html"><B>"Extract variable"</B></A>
+    </LI>
+    <LI><A HREF="http://www.refactoring.com/catalog/inlineTemp.html"><B>"Inline temp"</B></A> or inline variable
+    </LI>
+
+</UL>
+
+<P><em>Renaming</em> is a great idea because code should communicate clearly and
+    variable names are super important (imagine a program where everything
+    is <TT>v1</TT>, <TT>v2</TT>, ...; that is what obfuscaters do).
+
+<h2>IDEs</h2>
+
+<p>IntelliJ and Eclipse are getting quite good at doing refactorings automatically. They perform static code analysis
+    to stop you from altering the program's meaning unintentionally. However, you may sometimes introduce errors if you
+    rely blindly on this. <br><img src="intellij.png"/></p>
+</BODY>
+</HTML>
