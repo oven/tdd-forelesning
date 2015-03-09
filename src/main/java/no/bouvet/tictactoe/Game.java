@@ -13,62 +13,58 @@ public class Game {
         board.setCharAt(position, player);
     }
 
-    public Game play(int i, char player) {
-        return new Game(this.board, i, player);
-    }
-
     public int move(char player) {
         for (int i = 0; i < boardLength(); i++) {
-            if (isPlayable(i) && isWinningMove(i, player)) return i;
+            if (isPlayable(i) && isWinningMove(player, i)) return i;
         }
 
         for (int i = 0; i < boardLength(); i++) {
             if (isPlayable(i)) return i;
         }
-
         return -1;
     }
 
-    private boolean isWinningMove(int i, char player) {
+    private boolean isWinningMove(char player, int i) {
         Game game = play(i, player);
-        return game.winner() == player;
-    }
-
-    public char winner() {
-        for (int i = 0; i < boardSize(); i++) {
-            int rowStart = i * boardSize();
-            if (isWinningRow(rowStart)) return getCell(rowStart);
-        }
-        return '-';
-    }
-
-    private boolean isWinningRow(int rowStart) {
-        if (isPlayable(rowStart)) return false;
-
-        for (int i = 0; i < boardSize(); i++) {
-            if (!equal(rowStart, rowStart + i)) return false;
-        }
-        return true;
-    }
-
-    public int boardSize() {
-        return (int) Math.sqrt(boardLength());
-    }
-
-    private int boardLength() {
-        return board.length();
+        if (game.winner() == player)
+            return true;
+        return false;
     }
 
     private boolean isPlayable(int i) {
         return getCell(i) == '-';
     }
 
-    private boolean equal(int i, int j) {
-        return getCell(i) == getCell(j);
+    private int boardLength() {
+        return board.length();
+    }
+
+    public Game play(int i, char player) {
+        return new Game(this.board, i, player);
+    }
+
+    public char winner() {
+        for (int i = 0; i < boardSize(); i++) {
+            int rowstart = i * boardSize();
+            if (isWinningRow(rowstart)) return getCell(rowstart);
+        }
+        return '-';
+    }
+
+    private int boardSize() {
+        return (int) Math.sqrt(boardLength());
+    }
+
+    private boolean isWinningRow(int rowstart) {
+        if (isPlayable(rowstart)) return false;
+
+        for (int i = 0; i < boardSize(); i++) {
+            if(getCell(rowstart) != getCell(rowstart + i)) return false;
+        }
+        return true;
     }
 
     private char getCell(int index) {
         return board.charAt(index);
     }
-
 }
